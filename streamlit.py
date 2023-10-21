@@ -44,6 +44,9 @@ if __name__ == '__main__':
 
         min_courses = st.slider("Minimum Number of Courses", 0, int(df_full['n_courses'].max()), value=0)
 
+        if min_courses > 0:
+            df = df[df['n_courses'] >= min_courses]
+
         # Use max_limit for the slider's maximum value
         class_size = st.slider("Class Size", 0, int(max_limit), value=0)
         if class_size == 0:
