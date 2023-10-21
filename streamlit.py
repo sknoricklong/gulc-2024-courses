@@ -71,6 +71,9 @@ if __name__ == '__main__':
 
         hovertemplates = df.apply(create_hovertemplate, axis=1)
 
+        fig.update_xaxes(title_text="Recommendation Score")
+        fig.update_yaxes(title_text="Accessibility Score")
+
         # Updated customdata array to match the new hover template
         fig.update_traces(
             marker=dict(color='blue', line=dict(width=0, color='DarkSlateGrey')),
