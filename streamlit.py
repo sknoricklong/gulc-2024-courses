@@ -114,8 +114,7 @@ if __name__ == '__main__':
 
         # Calculate 5th percentile for both recommend_1 and accessible_1
         min_recommend = df_full['recommend_1'].quantile(0.05)
-        max_recommend = df_full['recommend_1'].max() + 0.05 * (
-                    df_full['recommend_1'].max() - df_full['recommend_1'].min())
+        max_recommend = 5.05
 
         min_accessible = df_full['accessible_1'].quantile(0.05)
         max_accessible = df_full['accessible_1'].max() + 0.05 * (
