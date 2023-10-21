@@ -151,14 +151,12 @@ if __name__ == '__main__':
     df.reset_index(drop=True, inplace=True)
 
     st.header("🥇 Courses Ranked by  Professor's Average Rating")
-    st.info("👉 Scroll right for course url on my.harvard.edu")
     df_with_previous = df[
         ['Professor_1', 'Course.Name', 'recommend_1', 'accessible_1', 'Course.Limit', 'n_courses', 'Professor_1.Link', 'Section.Content', 'Course.ID', 'Time']].sort_values(
         by=['recommend_1', 'n_courses'], ascending=[False, True]).reset_index(drop=True)
     st.write(df_with_previous.dropna(subset=['recommend_1']))
 
     st.header("📈 New Courses")
-    st.info("👉 Scroll right for course url on my.harvard.edu")
     df_new_professors = df_with_previous[df_with_previous['recommend_1'].isna()].reset_index(drop=True)
     df_new_professors = df_new_professors.drop(columns=['recommend_1', 'accessible_1', 'n_courses'])
     st.write(df_new_professors)
