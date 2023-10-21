@@ -17,9 +17,13 @@ if __name__ == '__main__':
     )
 
     df_full = pd.read_csv("./matched_courses.csv")
+
+    # Filter only the numeric values in 'Course.Limit' and find the maximum
+    numeric_limits = pd.to_numeric(df_full['Course.Limit'], errors='coerce')
+    max_limit = numeric_limits.max()
+
     median_rating = df_full['recommend_1'].median()
     median_courses = df_full['accessible_1'].median()
-
     last_selected = None
 
     with st.sidebar:
@@ -28,14 +32,8 @@ if __name__ == '__main__':
 
         if type == "Search for courses":
             selected_term = st.text_input("Add search term:", "environment").strip()
-
-            # Replace 3 letters followed by a space and then 3 numbers with a hyphen in place of the space
             selected_term = re.sub(r'([A-Za-z]{3}) (\d{3})', r'\1-\2', selected_term)
-
-            # Replace 3 letters immediately followed by 3 numbers with a hyphen in between
             selected_term = re.sub(r'([A-Za-z]{3})(\d{3})', r'\1-\2', selected_term)
-
-            # If there's an alternate term, add it to the search pattern
             search_pattern = selected_term
 
             df = df_full[(df_full["Course.Name"].str.contains(search_pattern, case=False, regex=True)) |
@@ -44,11 +42,18 @@ if __name__ == '__main__':
         elif type == "See all courses":
             df = df_full.copy()
 
-        # Add slider for minimum n_courses
         min_courses = st.slider("Minimum Number of Courses", 0, int(df_full['n_courses'].max()), value=0)
 
-            # Filter dataframe based on slider value
-        df = df[(df['n_courses'] >= min_courses) | (df['n_courses'].isna())]
+        # Use max_limit for the slider's maximum value
+        class_size = st.slider("Class Size", 0, int(max_limit), value=0)
+        if class_size == 0:
+            df = df
+        else:
+            # Convert 'na' values to NaN first, and then coerce the entire column to numeric
+            df['Course.Limit'] = pd.to_numeric(df['Course.Limit'], errors='coerce')
+
+            # Now, filter based on the class_size
+            df = df[(df['Course.Limit'] <= class_size)]
 
         st.markdown("👉 [Feedback?](https://forms.gle/dVQtp7XwVhqnv5Dw8)")
 
@@ -66,7 +71,8 @@ if __name__ == '__main__':
                         "<b>Professor:</b> %{customdata[1]}<br>"
                         "<b>Rating:</b> %{customdata[2]:.2f}<br>"
                         "<b>Accessible:</b> %{customdata[3]}<br>"
-                        "<b>Number of Courses:</b> %{customdata[4]}")
+                        "<b>Number of Courses:</b> %{customdata[4]}<br>"
+                        "<b>Course Limit:</b> %{customdata[5]}")  # Add this line
             return template
 
         hovertemplates = df.apply(create_hovertemplate, axis=1)
@@ -77,7 +83,9 @@ if __name__ == '__main__':
         # Updated customdata array to match the new hover template
         fig.update_traces(
             marker=dict(color='blue', line=dict(width=0, color='DarkSlateGrey')),
-            customdata=df[['Course.ID', 'Professor_1', 'recommend_1', 'accessible_1', 'n_courses']].values,
+            customdata=df[
+                ['Course.ID', 'Professor_1', 'recommend_1', 'accessible_1', 'n_courses', 'Course.Limit']].values,
+            # Add 'Course.Limit' here
             hovertemplate=hovertemplates
         )
 
@@ -142,7 +150,7 @@ if __name__ == '__main__':
     st.header("🥇 Courses Ranked by  Professor's Average Rating")
     st.info("👉 Scroll right for course url on my.harvard.edu")
     df_with_previous = df[
-        ['Professor_1', 'Course.Name', 'recommend_1', 'accessible_1', 'n_courses', 'Professor_1.Link', 'Section.Content', 'Course.ID', 'Time']].sort_values(
+        ['Professor_1', 'Course.Name', 'recommend_1', 'accessible_1', 'Course.Limit', 'n_courses', 'Professor_1.Link', 'Section.Content', 'Course.ID', 'Time']].sort_values(
         by=['recommend_1', 'n_courses'], ascending=[False, True]).reset_index(drop=True)
     st.write(df_with_previous.dropna(subset=['recommend_1']))
 
