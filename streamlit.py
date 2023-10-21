@@ -134,7 +134,7 @@ if __name__ == '__main__':
     st.header("🗓️ Compare Spring 2024 Courses at Georgetown Law")
     st.info("""
         - Explore courses by instructor **quality** and **accessibility outside class**; each point is a professor's average score when teaching that course
-        - Hover over points to see course scores and bidding history; filter for **all** or **specific** courses
+        - Hover over points to see course scores; filter for **all** or **specific** courses
         """)
     plot_scatterplot(df)
 
